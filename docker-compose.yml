@@ -1,0 +1,80 @@
+version: '3'
+
+services:
+
+  bind:
+    image: sameersbn/bind:latest
+    container_name: bind
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    volumes:
+      - /srv/docker/bind:/data
+    environment:
+      - ROOT_PASSWORD=my_secure_password
+    networks:
+      - backend
+
+  nginx_lb_1:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx_lb_1.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - node1
+      - node2
+    networks:
+      - frontend
+      - backend
+
+  nginx_lb_2:
+    image: nginx:latest
+    ports:
+      - "8081:80"
+    volumes:
+      - ./nginx_lb_2.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - node3
+      - node4
+    networks:
+      - frontend
+      - backend
+
+  node1:
+    image: nginx:latest
+    container_name: node1
+    volumes:
+      - ./node1:/usr/share/nginx/html
+    networks:
+      - backend
+
+  node2:
+    image: nginx:latest
+    container_name: node2
+    volumes:
+      - ./node2:/usr/share/nginx/html
+    networks:
+      - backend
+
+  node3:
+    image: nginx:latest
+    container_name: node3
+    volumes:
+      - ./node3:/usr/share/nginx/html
+    networks:
+      - backend
+
+  node4:
+    image: nginx:latest
+    container_name: node4
+    volumes:
+      - ./node4:/usr/share/nginx/html
+    networks:
+      - backend
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
